@@ -1,0 +1,28 @@
+Developed for Compiler Design Course
+=====================================
+
+Line | Token               | Type
+-----|---------------------|------------
+1 | # | PUNCTUATION
+1 | include | IDENTIFIER
+1 | < | OPERATOR
+1 | iostream | IDENTIFIER
+1 | > | OPERATOR
+2 | int | KEYWORD
+2 | main | IDENTIFIER
+2 | ( | PUNCTUATION
+2 | ) | PUNCTUATION
+2 | { | PUNCTUATION
+2 | return | KEYWORD
+2 | 0 | NUMBER
+2 | ; | PUNCTUATION
+2 | } | PUNCTUATION
+
+Summary:
+========================================
+Total Tokens: 14
+Keywords: 2
+Identifiers: 3
+Numbers: 1
+Operators: 2
+Punctuations: 6

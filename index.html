@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Lexical Analyzer</title>
+    <style>
+        :root {
+            --primary-color: #008080;
+            --secondary-color: #f0f8ff;
+            --text-color: #333;
+            --border-color: #ccc;
+            --success-color: #4caf50;
+            --error-color: #f44336;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        
+        @media (min-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        .panel {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        
+        .panel-title {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--secondary-color);
+        }
+        
+        textarea {
+            width: 100%;
+            height: 300px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+        }
+        
+        .input-method {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: var(--secondary-color);
+        }
+        
+        .input-method h3 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #006666;
+        }
+        
+        .file-upload {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .file-upload input {
+            width: 100%;
+        }
+        
+        .results-panel {
+            grid-column: 1 / -1;
+        }
+        
+        .token-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        .token-table th, .token-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .token-table th {
+            background-color: var(--secondary-color);
+            font-weight: bold;
+        }
+        
+        .token-table tr:hover {
+            background-color: #f9f9f9;
+        }
+        
+        .summary-section {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: var(--secondary-color);
+            border-radius: 8px;
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .summary-item {
+            background-color: white;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .summary-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .summary-label {
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: var(--primary-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .error {
+            color: var(--error-color);
+            background-color: #ffebee;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 15px;
+        }
+        
+        .success {
+            color: var(--success-color);
+        }
+        
+        .export-buttons {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .export-buttons button {
+            background-color: #607d8b;
+        }
+        
+        .export-buttons button:hover {
+            background-color: #455a64;
+        }
+        
+        .file-info {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Interactive Lexical Analyzer</h1>
+            <p class="subtitle">Developed for Compiler Design Course</p>
+        </header>
+        
+        <div class="main-content">
+            <div class="panel">
+                <h2 class="panel-title">Manual Code Input</h2>
+                <textarea id="code-input" placeholder="Enter your C++ code here...">// Sample C++ code for testing
+#include <iostream>
+using namespace std;
+
+int main() {
+    int x = 10;  // This is a single line comment
+    float y = 3.14;
+    
+    /* This is a 
+       multi-line comment */
+       
+    if (x > 0) {
+        cout << "Positive number" << endl;
+    } else {
+        cout << "Non-positive number" << endl;
+    }
+    
+    return 0;
+}</textarea>
+                
+                <div class="controls">
+                    <button id="analyze-code-btn">Analyze Code</button>
+                </div>
+            </div>
+            
+            <div class="panel">
+                <h2 class="panel-title">File Upload</h2>
+                <div class="input-method">
+                    <h3>Upload C++ File</h3>
+                    <div class="file-upload">
+                        <input type="file" id="file-input" accept=".cpp,.h,.hpp">
+                        <button id="analyze-file-btn">Analyze File</button>
+                        <div id="file-info" class="file-info">No file selected</div>
+                    </div>
+                </div>
+                
+                <div class="input-method">
+                    <h3>Recent Files</h3>
+                    <p>No files uploaded yet.</p>
+                </div>
+            </div>
+            
+            <div class="panel results-panel">
+                <h2 class="panel-title">Analysis Results</h2>
+                <div id="results-container">
+                    <p>Enter C++ code or upload a file and click "Analyze" to begin lexical analysis.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>Developed for Compiler Design Course</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const codeInput = document.getElementById('code-input');
+            const fileInput = document.getElementById('file-input');
+            const analyzeCodeBtn = document.getElementById('analyze-code-btn');
+            const analyzeFileBtn = document.getElementById('analyze-file-btn');
+            const fileInfo = document.getElementById('file-info');
+            const resultsContainer = document.getElementById('results-container');
+            
+            // Handle file selection
+            fileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    fileInfo.textContent = `Selected: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+                } else {
+                    fileInfo.textContent = 'No file selected';
+                }
+            });
+            
+            // Handle analyze code button click
+            analyzeCodeBtn.addEventListener('click', function() {
+                const code = codeInput.value.trim();
+                if (!code) {
+                    alert('Please enter some C++ code to analyze.');
+                    return;
+                }
+                
+                analyzeCode(code, 'Manual Code Input');
+            });
+            
+            // Handle analyze file button click
+            analyzeFileBtn.addEventListener('click', function() {
+                const file = fileInput.files[0];
+                if (!file) {
+                    alert('Please select a file to analyze.');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    analyzeCode(e.target.result, `File: ${file.name}`);
+                };
+                reader.readAsText(file);
+            });
+            
+            function analyzeCode(code, source) {
+                // Show loading indicator with source information
+                resultsContainer.innerHTML = `
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>Analyzing code from ${source}...</p>
+                    </div>
+                `;
+                
+                // Send code to backend
+                const formData = new FormData();
+                formData.append('code', code);
+                
+                fetch('/analyze_json', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayResults(data.tokens, data.summary, source);
+                    } else {
+                        resultsContainer.innerHTML = `<div class="error">Error: ${data.error}</div>`;
+                    }
+                })
+                .catch(error => {
+                    resultsContainer.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+                });
+            }
+            
+            function displayResults(tokens, summary, source) {
+                let html = `
+                    <h3>Tokenized Output (${source})</h3>
+                    <table class="token-table">
+                        <thead>
+                            <tr>
+                                <th>Line</th>
+                                <th>Token</th>
+                                <th>Type</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                tokens.forEach(token => {
+                    html += `
+                        <tr>
+                            <td>${token.line}</td>
+                            <td>${token.value}</td>
+                            <td>${token.type}</td>
+                        </tr>
+                    `;
+                });
+                
+                html += `
+                        </tbody>
+                    </table>
+                    
+                    <div class="summary-section">
+                        <h3>Analysis Summary (${source})</h3>
+                        <div class="summary-grid">
+                            <div class="summary-item">
+                                <div class="summary-value">${summary['Total Tokens'] || 0}</div>
+                                <div class="summary-label">Total Tokens</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-value">${summary['Keywords'] || 0}</div>
+                                <div class="summary-label">Keywords</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-value">${summary['Identifiers'] || 0}</div>
+                                <div class="summary-label">Identifiers</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-value">${summary['Numbers'] || 0}</div>
+                                <div class="summary-label">Numbers</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-value">${summary['Operators'] || 0}</div>
+                                <div class="summary-label">Operators</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-value">${summary['Punctuations'] || 0}</div>
+                                <div class="summary-label">Punctuations</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="export-buttons">
+                        <button onclick="exportToCSV()">Export to CSV</button>
+                        <button onclick="exportToJSON()">Export to JSON</button>
+                    </div>
+                `;
+                
+                resultsContainer.innerHTML = html;
+                
+                // Store data for export functions
+                window.analysisData = { tokens, summary };
+            }
+            
+            // Export functions
+            window.exportToCSV = function() {
+                if (!window.analysisData) return;
+                
+                const { tokens } = window.analysisData;
+                let csv = 'Line,Token,Type\n';
+                tokens.forEach(token => {
+                    csv += `"${token.line}","${token.value}","${token.type}"\n`;
+                });
+                
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'tokens.csv';
+                a.click();
+                window.URL.revokeObjectURL(url);
+            };
+            
+            window.exportToJSON = function() {
+                if (!window.analysisData) return;
+                
+                const json = JSON.stringify(window.analysisData, null, 2);
+                const blob = new Blob([json], { type: 'application/json' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'tokens.json';
+                a.click();
+                window.URL.revokeObjectURL(url);
+            };
+        });
+    </script>
+</body>
+</html>
