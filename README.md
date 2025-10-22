@@ -1,7 +1,7 @@
-# Welcome to your  project
+# 👋👋👋       Welcome to your  project
 
 ## Project info
-
+'
 
 # Interactive Lexical Analyzer System
 
@@ -295,4 +295,5 @@ TSINUEKAL(tsinucode)
 
 Developed for Compiler Design Course#
 here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+
 
